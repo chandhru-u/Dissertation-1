@@ -2,19 +2,19 @@ import streamlit as st
 import pandas as pd
 import streamlit as st
 
-st.markdown("""
-    <style>
-        .stApp {
-            background-color: #ffffff;  /* white */
-        }
-        section[data-testid="stSidebar"] {
-            background-color: #87CEEB;  /* sky blue sidebar */
-        }
-        .stHeader, .stTextInput, .stButton>button {
-            border-radius: 10px;
-        }
-    </style>
-""", unsafe_allow_html=True)
+# st.markdown("""
+#     <style>
+#         .stApp {
+#             background-color: #ffffff;  /* white */
+#         }
+#         section[data-testid="stSidebar"] {
+#             background-color: #87CEEB;  /* sky blue sidebar */
+#         }
+#         .stHeader, .stTextInput, .stButton>button {
+#             border-radius: 10px;
+#         }
+#     </style>
+# """, unsafe_allow_html=True)
 
 
 # List of available cities and their corresponding CSV files
@@ -110,6 +110,7 @@ st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
 peak_usage_time = user_data[user_data['energy_consumed'] == user_data['energy_consumed'].max()]
 st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').values[0]}")
 st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum()} kWh")
+
 
 
 

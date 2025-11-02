@@ -157,16 +157,25 @@ else:
     st.warning("No comparison data available for the selected range.")
 
 # -------------------------------
-# 👤 USER ENERGY DASHBOARD
+# 👤 USER ENERGY DASHBOARD (Filtered by Date)
 # -------------------------------
 st.title('👤 User Energy Consumption Dashboard')
 st.subheader("Energy Consumption Overview")
 
-if not user_data.empty:
-    st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
+# Filter user data within selected date range
+user_mask = (user_data['timestamp'] >= start_date) & (user_data['timestamp'] <= end_date)
+filtered_user_data = user_data.loc[user_mask].copy()
 
-    peak_usage_time = user_data.loc[user_data['energy_consumed'].idxmax()]
-    st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-    st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum():.2f} kWh")
+if not filtered_user_data.empty:
+    # Plot filtered consumption
+    st.line_chart(filtered_user_data.set_index('timestamp')['energy_consumed'])
+
+    # Calculate peak usage within selected range
+    peak_usage_time = filtered_user_data.loc[filtered_user_data['energy_consumed'].idxmax()]
+    st.write(f"**Peak Usage Time (Selected Range)**: {peak_usage_time['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
+    st.write(f"**Total Energy Consumed (Selected Range)**: {filtered_user_data['energy_consumed'].sum():.2f} kWh")
+
 else:
-    st.warning("No user energy data available for this city.")
+    st.warning("No user energy data available for the selected date range.")
+
+

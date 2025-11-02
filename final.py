@@ -157,25 +157,59 @@ else:
     st.warning("No comparison data available for the selected range.")
 
 # -------------------------------
-# 👤 USER ENERGY DASHBOARD (Filtered by Date)
+# 📊 ENERGY OUTPUT + USER DASHBOARD SIDE BY SIDE
 # -------------------------------
-st.title('👤 User Energy Consumption Dashboard')
-st.subheader("Energy Consumption Overview")
+st.title("📈 Energy Analysis Overview")
 
-# Filter user data within selected date range
+# Filter prediction data within selected range
+mask = (data['timestamp'] >= start_date) & (data['timestamp'] <= end_date)
+filtered_data = data.loc[mask].copy()
+
+# Add status classification
+filtered_data['status'] = filtered_data['predicted_energy'].apply(
+    lambda x: 'Overconsumption' if x > OVERCONSUMPTION_THRESHOLD
+    else ('Low Consumption' if x < LOW_CONSUMPTION_THRESHOLD else 'Normal')
+)
+
+# Filter user data within selected range
 user_mask = (user_data['timestamp'] >= start_date) & (user_data['timestamp'] <= end_date)
 filtered_user_data = user_data.loc[user_mask].copy()
 
-if not filtered_user_data.empty:
-    # Plot filtered consumption
-    st.line_chart(filtered_user_data.set_index('timestamp')['energy_consumed'])
+# Two-column layout
+col1, col2 = st.columns(2)
 
-    # Calculate peak usage within selected range
-    peak_usage_time = filtered_user_data.loc[filtered_user_data['energy_consumed'].idxmax()]
-    st.write(f"**Peak Usage Time (Selected Range)**: {peak_usage_time['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-    st.write(f"**Total Energy Consumed (Selected Range)**: {filtered_user_data['energy_consumed'].sum():.2f} kWh")
+# -------------------------------
+# LEFT COLUMN → Predicted Energy
+# -------------------------------
+with col1:
+    st.subheader("🔹 Predicted Energy Output")
+    if not filtered_data.empty:
+        st.line_chart(filtered_data.set_index('timestamp')['predicted_energy'])
+        st.write(f"**Overconsumption Threshold**: {OVERCONSUMPTION_THRESHOLD} kWh")
+        st.write(f"**Low Consumption Threshold**: {LOW_CONSUMPTION_THRESHOLD} kWh")
 
-else:
-    st.warning("No user energy data available for the selected date range.")
+        if (filtered_data['status'] == 'Overconsumption').any():
+            st.warning("⚠️ Overconsumption detected in this range!")
+        elif (filtered_data['status'] == 'Low Consumption').any():
+            st.info("ℹ️ Low consumption observed.")
+        else:
+            st.success("✅ Normal energy usage levels.")
+    else:
+        st.warning("No predicted energy data available for this range.")
+
+# -------------------------------
+# RIGHT COLUMN → User Consumption
+# -------------------------------
+with col2:
+    st.subheader("🔸 User Energy Consumption")
+    if not filtered_user_data.empty:
+        st.line_chart(filtered_user_data.set_index('timestamp')['energy_consumed'])
+        peak_usage_time = filtered_user_data.loc[filtered_user_data['energy_consumed'].idxmax()]
+        st.write(f"**Peak Usage Time (Selected Range)**: {peak_usage_time['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
+        st.write(f"**Total Energy Consumed (Selected Range)**: {filtered_user_data['energy_consumed'].sum():.2f} kWh")
+    else:
+        st.warning("No user energy data available for this date range.")
+
+
 
 

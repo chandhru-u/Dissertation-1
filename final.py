@@ -1,42 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# -------------------------------
-# 🎨 CUSTOM THEME / BACKGROUND
-# -------------------------------
-st.markdown("""
-    <style>
-        /* Main app background */
-        .stApp {
-            background-color: #f8fbff;  /* light blue-gray */
-        }
-        /* Sidebar styling */
-        section[data-testid="stSidebar"] {
-            background-color: #e6f0ff;  /* soft blue */
-        }
-        /* Container/card styling */
-        .block-container {
-            background-color: #ffffff;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-        }
-        /* Titles and headers */
-        h1, h2, h3 {
-            color: #003366;
-        }
-        /* Buttons */
-        button[kind="primary"] {
-            background-color: #0066cc !important;
-            color: white !important;
-            border-radius: 8px;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# -------------------------------
-# 🏙️ CITY CONFIGURATION
-# -------------------------------
+# List of available cities and their corresponding CSV files
 CITY_FILES = {
     "Vellore": "predicted_test_1.csv",
     "Chennai": "predicted_test_2.csv",
@@ -52,35 +17,18 @@ USER_DATA_FILES = {
 OVERCONSUMPTION_THRESHOLD = 0.0600
 LOW_CONSUMPTION_THRESHOLD = 0.0500
 
-# -------------------------------
-# 🏠 MAIN TITLE
-# -------------------------------
-st.title('⚡ Energy Prediction Dashboard')
+st.title('Energy Prediction Dashboard')
 
-# -------------------------------
-# 🧭 SIDEBAR CONTROLS
-# -------------------------------
-st.sidebar.header("🔹 City Selection")
+st.sidebar.header("Select City")
 selected_city = st.sidebar.selectbox("Choose a City:", list(CITY_FILES.keys()))
 
 data_file = CITY_FILES[selected_city]
 user_data_file = USER_DATA_FILES[selected_city]
 
-# -------------------------------
-# 📂 LOAD DATA
-# -------------------------------
 data = pd.read_csv(data_file, parse_dates=['timestamp'])
 user_data = pd.read_csv(user_data_file, parse_dates=['timestamp'])
 
-required_cols = ['timestamp', 'predicted_energy']
-if not all(col in data.columns for col in required_cols):
-    st.error(f"The file for {selected_city} is missing required columns.")
-    st.stop()
-
-# -------------------------------
-# 📆 DATE FILTER FOR PREDICTION DATA
-# -------------------------------
-st.sidebar.header("📅 Date Range for Prediction Data")
+st.sidebar.header("Select Date Range for Prediction Data")
 start_date = st.sidebar.date_input('Start Date')
 end_date = st.sidebar.date_input('End Date')
 
@@ -90,126 +38,59 @@ end_date = pd.to_datetime(end_date)
 if st.sidebar.button('Apply Date Filter'):
     if start_date and end_date:
         mask = (data['timestamp'] >= start_date) & (data['timestamp'] <= end_date)
-        filtered_data = data.loc[mask].copy()
+        filtered_data = data.loc[mask]
+        filtered_data['status'] = filtered_data['predicted_energy'].apply(lambda x:
+                                                                          'Overconsumption' if x > OVERCONSUMPTION_THRESHOLD
+                                                                          else ('Low Consumption' if x < LOW_CONSUMPTION_THRESHOLD
+                                                                                else 'Normal'))
     else:
-        filtered_data = data.head(20).copy()
+        filtered_data = data.head(20)
 else:
-    st.info("Showing first 20 rows by default. Apply date filter for full view.")
-    filtered_data = data.head(20).copy()
+    filtered_data = data.head(20)
+    filtered_data['status'] = filtered_data['predicted_energy'].apply(lambda x:
+                                                                      'Overconsumption' if x > OVERCONSUMPTION_THRESHOLD
+                                                                      else ('Low Consumption' if x < LOW_CONSUMPTION_THRESHOLD
+                                                                            else 'Normal'))
 
-# -------------------------------
-# ⚙️ STATUS CLASSIFICATION
-# -------------------------------
-filtered_data['status'] = filtered_data['predicted_energy'].apply(
-    lambda x: 'Overconsumption' if x > OVERCONSUMPTION_THRESHOLD
-    else ('Low Consumption' if x < LOW_CONSUMPTION_THRESHOLD else 'Normal')
-)
-
-# -------------------------------
-# 📊 DISPLAY FILTERED DATA
-# -------------------------------
-st.write(f"### 📍 Selected City: {selected_city}")
-st.write(f"Showing results from **{start_date.date()}** to **{end_date.date()}**")
-
+st.write(f"**Selected City:** {selected_city}")
+st.write(f"Showing results for the period from {start_date} to {end_date}:")
 st.dataframe(filtered_data[['timestamp', 'predicted_energy', 'status']])
 
-# -------------------------------
-# 📈 PREDICTED ENERGY CHART
-# -------------------------------
 st.subheader("Predicted Energy Output Over Time")
-
 if not filtered_data.empty:
     chart_data = filtered_data.set_index('timestamp')['predicted_energy']
     st.line_chart(chart_data)
     st.write(f"**Overconsumption Threshold**: {OVERCONSUMPTION_THRESHOLD} kWh")
     st.write(f"**Low Consumption Threshold**: {LOW_CONSUMPTION_THRESHOLD} kWh")
 
-    # ⚠️ Alerts
     st.subheader("Consumption Status Alerts")
     if (filtered_data['status'] == 'Overconsumption').any():
-        st.warning("🚨 Overconsumption detected during the selected period!")
+        st.warning("Warning: Overconsumption detected during the selected period!")
     elif (filtered_data['status'] == 'Low Consumption').any():
-        st.info("ℹ️ Low consumption detected during the selected period.")
+        st.info("Info: Low consumption detected during the selected period.")
     else:
-        st.success("✅ Normal consumption during the selected period.")
+        st.success("Normal consumption during the selected period.")
 
-# -------------------------------
-# ⚖️ ENERGY USAGE COMPARISON
-# -------------------------------
-st.title('⚖️ Energy Usage Comparison')
-
-comparison_start_date = st.sidebar.date_input('Comparison Start Date')
-comparison_end_date = st.sidebar.date_input('Comparison End Date')
+st.title('Energy Usage Comparison')
+comparison_start_date = st.sidebar.date_input('Start Date for Comparison')
+comparison_end_date = st.sidebar.date_input('End Date for Comparison')
 
 comparison_start_date = pd.to_datetime(comparison_start_date)
 comparison_end_date = pd.to_datetime(comparison_end_date)
 
 comparison_mask = (data['timestamp'] >= comparison_start_date) & (data['timestamp'] <= comparison_end_date)
-comparison_filtered_data = data.loc[comparison_mask].copy()
+comparison_filtered_data = data[comparison_mask]
 
-if 'actual_energy' not in comparison_filtered_data.columns:
+if 'actual_energy' not in data.columns:
     comparison_filtered_data['actual_energy'] = comparison_filtered_data['predicted_energy'] * 0.95
 
 st.subheader("Predicted vs Actual Energy Usage")
-if not comparison_filtered_data.empty:
-    st.line_chart(comparison_filtered_data[['timestamp', 'predicted_energy', 'actual_energy']].set_index('timestamp'))
-else:
-    st.warning("No comparison data available for the selected range.")
+st.line_chart(comparison_filtered_data[['timestamp', 'predicted_energy', 'actual_energy']].set_index('timestamp'))
 
-# -------------------------------
-# 📊 ENERGY OUTPUT + USER DASHBOARD SIDE BY SIDE
-# -------------------------------
-st.title("📈 Energy Analysis Overview")
+st.title('User Energy Consumption Dashboard')
+st.subheader("Energy Consumption Overview")
+st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
 
-# Filter prediction data within selected range
-mask = (data['timestamp'] >= start_date) & (data['timestamp'] <= end_date)
-filtered_data = data.loc[mask].copy()
-
-# Add status classification
-filtered_data['status'] = filtered_data['predicted_energy'].apply(
-    lambda x: 'Overconsumption' if x > OVERCONSUMPTION_THRESHOLD
-    else ('Low Consumption' if x < LOW_CONSUMPTION_THRESHOLD else 'Normal')
-)
-
-# Filter user data within selected range
-user_mask = (user_data['timestamp'] >= start_date) & (user_data['timestamp'] <= end_date)
-filtered_user_data = user_data.loc[user_mask].copy()
-
-# Two-column layout
-col1, col2 = st.columns(2)
-
-# -------------------------------
-# LEFT COLUMN → Predicted Energy
-# -------------------------------
-with col1:
-    st.subheader("🔹 Predicted Energy Output")
-    if not filtered_data.empty:
-        st.line_chart(filtered_data.set_index('timestamp')['predicted_energy'])
-        st.write(f"**Overconsumption Threshold**: {OVERCONSUMPTION_THRESHOLD} kWh")
-        st.write(f"**Low Consumption Threshold**: {LOW_CONSUMPTION_THRESHOLD} kWh")
-
-        if (filtered_data['status'] == 'Overconsumption').any():
-            st.warning("⚠️ Overconsumption detected in this range!")
-        elif (filtered_data['status'] == 'Low Consumption').any():
-            st.info("ℹ️ Low consumption observed.")
-        else:
-            st.success("✅ Normal energy usage levels.")
-    else:
-        st.warning("No predicted energy data available for this range.")
-
-# -------------------------------
-# RIGHT COLUMN → User Consumption
-# -------------------------------
-with col2:
-    st.subheader("🔸 User Energy Consumption")
-    if not filtered_user_data.empty:
-        st.line_chart(filtered_user_data.set_index('timestamp')['energy_consumed'])
-        peak_usage_time = filtered_user_data.loc[filtered_user_data['energy_consumed'].idxmax()]
-        st.write(f"**Peak Usage Time (Selected Range)**: {peak_usage_time['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-        st.write(f"**Total Energy Consumed (Selected Range)**: {filtered_user_data['energy_consumed'].sum():.2f} kWh")
-    else:
-        st.warning("No user energy data available for this date range.")
-
-
-
-
+peak_usage_time = user_data[user_data['energy_consumed'] == user_data['energy_consumed'].max()]
+st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').values[0]}")
+st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum()} kWh")

@@ -1,73 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-# ------------------ SKY BLUE THEME ------------------
-st.markdown("""
-    <style>
-    
-    /* Full App Background */
-    .stApp {
-        background: linear-gradient(to bottom right, #cfe8ff, #e8f5ff);
-        background-attachment: fixed;
-    }
-
-    /* White Card-style Containers */
-    .css-1d391kg, .css-12w0qpk, .css-1kyxreq {
-        background-color: rgba(255, 255, 255, 0.85) !important;
-        backdrop-filter: blur(4px) !important;
-        border-radius: 12px !important;
-        padding: 18px !important;
-    }
-
-    /* Sidebar Style */
-    .css-1d391kg {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-    }
-
-    /* Titles */
-    h1, h2, h3, h4 {
-        color: #0b3d91 !important;
-        text-shadow: 0px 0px 3px rgba(255,255,255,0.8);
-    }
-
-    /* Dataframe styling */
-    .dataframe th {
-        background-color: #0b3d91 !important;
-        color: white !important;
-    }
-
-    .dataframe td {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-    }
-
-    /* Buttons */
-    .stButton > button {
-        background-color: #4aa3ff;
-        color: white;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: 0.3s;
-    }
-
-    .stButton > button:hover {
-        background-color: #1e8cff;
-        transform: scale(1.04);
-    }
-
-    /* Alerts */
-    .stAlert {
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: bold;
-    }
-
-    </style>
-""", unsafe_allow_html=True)
-# -----------------------------------------------------
-
 
 # List of available cities and their corresponding CSV files
 CITY_FILES = {
@@ -162,4 +95,5 @@ st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
 peak_usage_time = user_data[user_data['energy_consumed'] == user_data['energy_consumed'].max()]
 st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').values[0]}")
 st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum()} kWh")
+
 

@@ -1,67 +1,73 @@
 import streamlit as st
 import pandas as pd
 
+# ------------------ SKY BLUE THEME ------------------
 st.markdown("""
     <style>
     
-    /* Background gradient */
+    /* Full App Background */
     .stApp {
-        background: linear-gradient(to bottom right, #1a2a6c, #b21f1f, #fdbb2d);
+        background: linear-gradient(to bottom right, #cfe8ff, #e8f5ff);
         background-attachment: fixed;
     }
 
-    /* Card-style containers */
+    /* White Card-style Containers */
     .css-1d391kg, .css-12w0qpk, .css-1kyxreq {
-        background-color: rgba(255, 255, 255, 0.18) !important;
-        backdrop-filter: blur(6px) !important;
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(4px) !important;
         border-radius: 12px !important;
-        padding: 15px !important;
+        padding: 18px !important;
     }
 
-    /* Sidebar styling */
-    .css-1d391kg, .css-12w0qpk {
-        background: rgba(0, 0, 0, 0.35) !important;
-        color: white !important;
+    /* Sidebar Style */
+    .css-1d391kg {
+        background-color: rgba(255, 255, 255, 0.9) !important;
     }
 
     /* Titles */
     h1, h2, h3, h4 {
-        color: #ffffff !important;
-        text-shadow: 0px 0px 8px rgba(0,0,0,0.7);
+        color: #0b3d91 !important;
+        text-shadow: 0px 0px 3px rgba(255,255,255,0.8);
     }
 
     /* Dataframe styling */
-    .dataframe th, .dataframe td {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border-radius: 4px;
+    .dataframe th {
+        background-color: #0b3d91 !important;
+        color: white !important;
     }
 
-    /* Warning / Info / Success box styling */
+    .dataframe td {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    /* Buttons */
+    .stButton > button {
+        background-color: #4aa3ff;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: 0.3s;
+    }
+
+    .stButton > button:hover {
+        background-color: #1e8cff;
+        transform: scale(1.04);
+    }
+
+    /* Alerts */
     .stAlert {
         border-radius: 10px;
         font-size: 16px;
         font-weight: bold;
     }
 
-    /* Buttons */
-    .stButton > button {
-        background-color: #ff7f50;
-        color: white;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 10px;
-        font-size: 16px;
-        transition: 0.3s;
-    }
-
-    .stButton > button:hover {
-        background-color: #ff4500;
-        transform: scale(1.05);
-    }
-
     </style>
 """, unsafe_allow_html=True)
+# -----------------------------------------------------
+
 
 # List of available cities and their corresponding CSV files
 CITY_FILES = {
@@ -156,3 +162,4 @@ st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
 peak_usage_time = user_data[user_data['energy_consumed'] == user_data['energy_consumed'].max()]
 st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').values[0]}")
 st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum()} kWh")
+

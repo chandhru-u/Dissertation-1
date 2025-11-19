@@ -28,7 +28,7 @@ st.markdown("""
 
     /* Dataframe styling: white + shadow */
     .dataframe td, .dataframe th {
-        background-color: #ffffff !important;
+        background-color: #fafafa !important;
         color: #000000 !important;
         border: 1px solid #ddd !important;
     }
@@ -154,6 +154,7 @@ st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
 peak_usage_time = user_data[user_data['energy_consumed'] == user_data['energy_consumed'].max()]
 st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').values[0]}")
 st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum()} kWh")
+
 
 
 

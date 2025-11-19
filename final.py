@@ -1,67 +1,65 @@
 import streamlit as st
 import pandas as pd
 
-# ------------------ CUSTOM THEME (Skyblue + White + Black Text) ------------------
+# ------------------ MODERN PROFESSIONAL THEME ------------------
 st.markdown("""
     <style>
 
-    /* Main background white */
+    /* Main background: very light gray */
     .stApp {
-        background-color: white !important;
+        background-color: #f5f7fa !important; 
     }
 
-    /* Sidebar skyblue background */
+    /* Sidebar beautiful gradient navy + blue */
     section[data-testid="stSidebar"] {
-        background-color: #87CEEB !important;  /* Skyblue */
+        background: linear-gradient(180deg, #001f3f, #005f99) !important;
+        color: white !important;
     }
 
-    /* Make all text black */
+    /* Sidebar text in white */
+    section[data-testid="stSidebar"] * {
+        color: #ffffff !important;
+    }
+
+    /* All main text black */
     html, body, [class*="css"] {
         color: #000000 !important;
     }
 
-    /* Sidebar text black */
-    section[data-testid="stSidebar"] * {
-        color: black !important;
-        font-weight: 500;
-    }
-
-    /* Dataframe styling (white background + black text) */
+    /* Dataframe styling: white + shadow */
     .dataframe td, .dataframe th {
-        color: black !important;
-        background-color: white !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
         border: 1px solid #ddd !important;
     }
 
-    /* Buttons: skyblue background */
+    /* Modern blue buttons */
     .stButton > button {
-        background-color: #87CEEB !important;
-        color: black !important;
-        border-radius: 6px;
+        background-color: #007acc !important;
+        color: white !important;
+        border-radius: 8px;
         padding: 8px 16px;
-        border: 1px solid #3b82f6;
+        border: none;
+        font-size: 15px;
+        transition: 0.3s;
     }
 
     .stButton > button:hover {
-        background-color: #6bb8d6 !important;
-        color: black !important;
-        transform: scale(1.03);
+        background-color: #005fa3 !important;
+        transform: scale(1.05);
+        box-shadow: 0px 0px 10px rgba(0, 122, 204, 0.6);
     }
 
-    /* Title and subtitle text black */
+    /* Titles bold black */
     h1, h2, h3, h4 {
-        color: black !important;
+        color: #000000 !important;
         font-weight: 700 !important;
-    }
-
-    /* Alert boxes text black */
-    .stAlert {
-        color: black !important;
     }
 
     </style>
 """, unsafe_allow_html=True)
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------
+
 
 # List of available cities and their corresponding CSV files
 CITY_FILES = {
@@ -156,6 +154,7 @@ st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
 peak_usage_time = user_data[user_data['energy_consumed'] == user_data['energy_consumed'].max()]
 st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').values[0]}")
 st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum()} kWh")
+
 
 
 

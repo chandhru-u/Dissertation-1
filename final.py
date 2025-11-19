@@ -1,66 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-# ------------------ UI FIX: Dark Text Everywhere ------------------
-st.markdown("""
-<style>
-
-    /* Main background */
-    .stApp {
-        background-color: #edf3f7 !important;
-    }
-
-    /* Sidebar gradient */
-    section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #001f3f, #005f99) !important;
-        color: white !important;
-    }
-
-    section[data-testid="stSidebar"] * {
-        color: #ffffff !important;
-    }
-
-    /* Force ALL text in main area to be BLACK */
-    html, body, .st-bb, .st-at, p, span, div, label, .stMarkdown, 
-    .css-10trblm, .css-16idsys, .css-1kyxreq, .css-1d391kg {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-
-    /* Fix light grey text inside charts */
-    .js-plotly-plot .plotly .main-svg text {
-        fill: #000000 !important;
-    }
-
-    /* Dataframe headers and cells */
-    .dataframe td, .dataframe th {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-    }
-
-    /* Alerts text fix */
-    .stAlert, .stAlert p {
-        color: #000000 !important;
-    }
-
-    /* Buttons */
-    .stButton > button {
-        background-color: #007acc !important;
-        color: white !important;
-        border-radius: 8px;
-        padding: 8px 16px;
-    }
-
-    .stButton > button:hover {
-        background-color: #005fa3 !important;
-        transform: scale(1.05);
-    }
-
-</style>
-""", unsafe_allow_html=True)
-# -----------------------------------------------------------------
-
-# ------------------------------------------------------------------
 
 # List of available cities and their corresponding CSV files
 CITY_FILES = {
@@ -155,4 +95,5 @@ st.line_chart(user_data.set_index('timestamp')['energy_consumed'])
 peak_usage_time = user_data[user_data['energy_consumed'] == user_data['energy_consumed'].max()]
 st.write(f"**Peak Usage Time**: {peak_usage_time['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').values[0]}")
 st.write(f"**Total Energy Consumed**: {user_data['energy_consumed'].sum()} kWh")
+
 
